@@ -30,18 +30,6 @@ shinyServer(function(input, output) {
     return(tab)
   })
   
-  ## Plotting window:
-  output$plot <- renderPlot({
-    if (is.null(input$files) || is.null(Results)) {
-      # User has not uploaded a file yet
-      return(NULL)
-    }      
-    
-    par(mar=c(7,2,1,2))
-    plot(Results())
-    
-  }, width = 'auto', height = 'auto')
-  
   
   
   # Download data:
@@ -93,13 +81,13 @@ shinyServer(function(input, output) {
     }
     
     tab <- Results()
-    tab$Source <- as.character(tab$Source)
-    tab <- tab[tab$Source == input$detPaper,]
+    #tab$Source <- as.character(tab$Source)
+    #tab <- tab[tab$Source == input$detPaper,]
     
-    tab <- tab[,!names(tab)%in%c("Source","Raw")]
+    #tab <- tab[,!names(tab)%in%c("Source","Raw")]
     
     # Confert TRUE to x:
-    for (i in seq_along(tab)) if (is.logical(tab[[i]])) tab[[i]] <- ifelse(tab[[i]],'x','')
+    #for (i in seq_along(tab)) if (is.logical(tab[[i]])) tab[[i]] <- ifelse(tab[[i]],'x','')
     # More consise names:
     names(tab) <- c('Stat','df1','df2','tc','rv','rc','rp','cp','err','dErr','1Tail','Copy')
     

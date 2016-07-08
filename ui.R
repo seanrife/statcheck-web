@@ -15,8 +15,7 @@ shinyUI(pageWithSidebar(
     br(),
     
     radioButtons("outtype", "Show:",
-                 list("Plot" = "plot",
-                      "Summary table" = "tab",
+                 list("Summary table" = "tab",
                       "Detailed" = "detail")
     ),
     
