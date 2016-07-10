@@ -1,7 +1,9 @@
 library('shiny')
 library('statcheck')
 
-shinyUI(pageWithSidebar(
+
+
+shinyUI(fluidPage(
   
   # Header:
   headerPanel("statcheck web interface"),
