@@ -1,39 +1,36 @@
 library('shiny')
-library('statcheck')
 
+shinyUI(
+  fluidPage(
 
-
-shinyUI(fluidPage(
-  
-  # Header:
-  headerPanel("statcheck web interface"),
-  
   # Input in sidepanel:
-  sidebarPanel(
+    fluidRow(
+      column(6,
       
-    # Input:
-    fileInput("files", "Upload files (pdf or html):", multiple = TRUE, accept= c('pdf/html')),
-    
-    br(),
-    
-    radioButtons("outtype", "Show:",
-                 list("Summary table" = "tab",
-                      "Detailed" = "detail")
+      br(),
+             
+      # Input:
+      fileInput("files", "Upload files (pdf or html):", multiple = TRUE, accept= c('pdf/html')),
+      
+      br()
+      
+      ),
+      
+      column(6,
+      
+      br(),
+             
+      radioButtons("outtype", "Show:",
+                   list("Summary table" = "tab",
+                        "Detailed" = "detail")
+      ),
+
+      downloadLink('downloadData', 'Download full report (csv)') ,
+      
+      br()
+      )
+  
     ),
-    
-    htmlOutput("selectpaper"),
-    
-    br(),
-    
-    downloadLink('downloadData', 'Download full report (csv)') ,
-    
-    br(),
-    
-    htmlOutput("legendText"),
-    
-    htmlOutput("legendField")
-    
-  ),
   
   # Plot in main:
   mainPanel(
