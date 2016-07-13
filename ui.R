@@ -19,13 +19,8 @@ shinyUI(
       column(6,
       
       br(),
-             
-      radioButtons("outtype", "Show:",
-                   list("Summary table" = "tab",
-                        "Detailed" = "detail")
-      ),
 
-      downloadLink('downloadData', 'Download full report (csv)') ,
+     
       
       br()
       )
@@ -34,6 +29,9 @@ shinyUI(
   
   # Plot in main:
   mainPanel(
-    htmlOutput("window")
+    tags$style(type="text/css", "data table { font-size: 11pt;}"),
+    htmlOutput("window"),
+    br()
+    #downloadLink('downloadData', 'Download full report (csv)')
   )
 ))

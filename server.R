@@ -6,7 +6,7 @@ library('statcheck')
 # NOTE: replace with something more useful on deployment
 createTempDir <- function() {
   repeat {
-    randomDir <- paste(sample(c(0:9, letters, LETTERS),32, replace=TRUE), collapse="")
+    randomDir <- paste(sample(c(0:9, letters),32, replace=TRUE), collapse="")
     retDir <- paste(tempdir(),randomDir,sep="\\")
     if (!file.exists(retDir)) {
       break
@@ -18,12 +18,9 @@ createTempDir <- function() {
 
 shinyServer(function(input, output) {
 
-  ## Files table:
+  # File table:
   output$filetable <- renderTable({
-    if (is.null(input$files)) {
-      # User has not uploaded a file yet
-      return(NULL)
-    }
+    if (is.null(input$files)) return(NULL)
     
     tab <- input$files[,'name',drop=FALSE]
     tab$name[nchar(tab$name) > 23] <- gsub('(?<=^.{20}).*(?=\\.)','(...)',  tab$name[nchar(tab$name) > 23], perl = TRUE)
@@ -40,8 +37,8 @@ shinyServer(function(input, output) {
     file.copy(input$files$datapath[needCopy],paste0(Dir,'\\',input$files$name[needCopy]))
 
     # Read in statcheck:
-    
     res <- checkdir(Dir)
+    output$message <- renderText({resCap})
     
     unlink(Dir, recursive=TRUE)
     return(res)
@@ -58,57 +55,36 @@ shinyServer(function(input, output) {
       
       write.csv(Results(), con)
     })
-  
-
-  # Paper selection:
-  output$selectpaper <- renderUI({ 
-    
-    if (input$outtype !=  "detail") return(NULL)
-    tab <- summary(Results())
-    tab$Source <- as.character(tab$Source)
-
-  })
 
   # Summary table:
   output$summary <- renderTable({
-    if (is.null(input$files)) {
-      # User has not uploaded a file yet
-      return(NULL)
-    }
+    if (is.null(input$files)) return(NULL)
     
-    tab <- summary(Results())
+    tabSummary <- summary(Results())
     
-    tab$Source <- as.character(tab$Source)
-    #tab$Source[nchar(tab$Source) > 35] <- gsub('(?<=^.{30}).*',' (...)',  tab$Source[nchar(tab$Source) > 35], perl = TRUE)
-    
-    return(tab)
+ 
+    return(tabSummary)
     
   })
   
   # Detailed:
-  output$detailed <- renderTable({
-    if (is.null(input$files)) {
-      # User has not uploaded a file yet
-      return(NULL)
-    }
+  output$results <- renderTable({
+    if (is.null(input$files)) return(NULL)
     
-    tab <- Results()
+    tabResults <- Results()
     
     # More consise names:
-    names(tab) <- c('Source','Stat','df1','df2','tc','rv','rc','rp','cp','raw','err','dErr','1Tail','1-tail in text','Copy & Paste','APA Factor')
+    names(tabResults) <- c('Source','Stat','df1','df2','Test Comparison','Reported Value','Reported Comparison','Reported p Value','Computed p Value','Statistical Reference','Error?','Decision error?','One-sided testing?','1-tail in text','Copy & Paste Error?','APA Factor')
     
-    return(tab)
+    tabResults$Source <- as.character(tabResults$Source)
+    tabResults$Source[nchar(tabResults$Source) > 35] <- gsub('(?<=^.{30}).*',' (...)',  tabResults$Source[nchar(tabResults$Source) > 35], perl = TRUE)
+    
+    return(tabResults)
   })
 
-  # Reactive output window (plot or table)
   output$window <- renderUI({
-    if (input$outtype ==  'detail')
-    {
-      tableOutput("detailed")
-    } else 
-    {
       tableOutput("summary")
-    }
+      div(tableOutput("results"), style="font-size:80%; font-family: Helvetica Neue,Helvetica,Arial,sans-serif")
   })
 })
 
