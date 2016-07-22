@@ -81,6 +81,14 @@ shinyServer(function(input, output) {
     
     return(tabResults)
   })
+  
+  # Download data:
+  output$downloadData <- downloadHandler(
+    filename = function() { 'statcheck.csv' },
+    content = function(file) {
+      write.csv(Results(), file)
+    }
+  )
 
   output$window <- renderUI({
       tableOutput("summary")

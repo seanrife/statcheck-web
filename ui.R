@@ -20,6 +20,7 @@ shinyUI(
       
       br(),
 
+
      
       
       br()
@@ -31,7 +32,9 @@ shinyUI(
   mainPanel(
     tags$style(type="text/css", "data table { font-size: 11pt;}"),
     htmlOutput("window"),
+    br(),
+    downloadButton('downloadData', 'Download'),
+    br(),
     br()
-    #downloadLink('downloadData', 'Download full report (csv)')
   )
 ))
