@@ -17,7 +17,7 @@ createTempDir <- function() {
 }
 
 shinyServer(function(input, output) {
-
+  
   # File table:
   output$filetable <- renderTable({
     if (is.null(input$files)) return(NULL)

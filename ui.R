@@ -11,20 +11,20 @@ shinyUI(
              
       # Input:
       fileInput("files", "Upload files (pdf or html):", multiple = TRUE, accept= c('pdf/html')),
-      
+
       br()
       
       ),
       
-      column(6,
       
-      br(),
+       conditionalPanel(condition='output.results',
+       br(),
+       br(),
+       downloadButton('downloadData', 'Download Results (csv)'),
 
-
-     
-      
       br()
-      )
+       )
+      
   
     ),
   
@@ -33,7 +33,6 @@ shinyUI(
     tags$style(type="text/css", "data table { font-size: 11pt;}"),
     htmlOutput("window"),
     br(),
-    downloadButton('downloadData', 'Download'),
     br(),
     br()
   )
