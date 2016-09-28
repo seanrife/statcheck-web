@@ -7,7 +7,7 @@ library('statcheck')
 createTempDir <- function() {
   repeat {
     randomDir <- paste(sample(c(0:9, letters),32, replace=TRUE), collapse="")
-    retDir <- paste(tempdir(),randomDir,sep="\\")
+    retDir <- paste("/home/shiny",randomDir,sep="/")
     if (!file.exists(retDir)) {
       break
     }
@@ -33,8 +33,8 @@ shinyServer(function(input, output) {
     Dir <- createTempDir()
     
     # Copy to the directory:
-    needCopy <- !file.exists(paste0(Dir,'\\',input$files$name))
-    file.copy(input$files$datapath[needCopy],paste0(Dir,'\\',input$files$name[needCopy]))
+    needCopy <- !file.exists(paste0(Dir,'/',input$files$name))
+    file.copy(input$files$datapath[needCopy],paste0(Dir,'/',input$files$name[needCopy]))
 
     # Read in statcheck:
     res <- checkdir(Dir)
@@ -74,7 +74,7 @@ shinyServer(function(input, output) {
     tabResults <- Results()
     
     # More consise names:
-    names(tabResults) <- c('Source','Stat','df1','df2','Test Comparison','Reported Value','Reported Comparison','Reported p Value','Computed p Value','Statistical Reference','Error?','Decision error?','One-sided testing?','1-tail in text','Copy & Paste Error?','APA Factor')
+    names(tabResults) <- c('Source','Stat','df1','df2','Test Comparison','Reported Value','Reported Comparison','Reported p Value','Computed p Value','Statistical Reference','Error?','Decision error?','One-sided testing?','1-tail in text','APA Factor')
     
     tabResults$Source <- as.character(tabResults$Source)
     tabResults$Source[nchar(tabResults$Source) > 35] <- gsub('(?<=^.{30}).*',' (...)',  tabResults$Source[nchar(tabResults$Source) > 35], perl = TRUE)
@@ -95,4 +95,3 @@ shinyServer(function(input, output) {
       div(tableOutput("results"), style="font-size:80%; font-family: Helvetica Neue,Helvetica,Arial,sans-serif")
   })
 })
-
