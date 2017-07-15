@@ -1,13 +1,15 @@
 library('shiny')
 library('statcheck')
 
+options(shiny.sanitize.errors = FALSE)
+
 # Create a temporary directory to hold uploaded files
 # Make sure it doesn't already exist (because paranoia)
 # NOTE: replace with something more useful on deployment
 createTempDir <- function() {
   repeat {
     randomDir <- paste(sample(c(0:9, letters),32, replace=TRUE), collapse="")
-    retDir <- paste("/home/shiny",randomDir,sep="/")
+    retDir <- paste("/home/shiny/uploads",randomDir,sep="/")
     if (!file.exists(retDir)) {
       break
     }
