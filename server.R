@@ -2,6 +2,7 @@ library('shiny')
 library('statcheck')
 
 options(shiny.sanitize.errors = FALSE)
+options(shiny.maxRequestSize=100*1024^2)
 
 # Create a temporary directory to hold uploaded files
 # Make sure it doesn't already exist (because paranoia)
