@@ -79,6 +79,9 @@ shinyServer(function(input, output) {
     # More consise names:
     names(tabResults) <- c('Source','Stat','df1','df2','Test Comparison','Reported Value','Reported Comparison','Reported p Value','Computed p Value','Statistical Reference','Error?','Decision error?','One-sided testing?','1-tail in text','APA Factor')
     
+    tabResults[,9] <- sprintf("%.05f",tabResults[,9])
+    tabResults[,8] <- sprintf("%.05f",tabResults[,8])
+    
     tabResults$Source <- as.character(tabResults$Source)
     tabResults$Source[nchar(tabResults$Source) > 35] <- gsub('(?<=^.{30}).*',' (...)',  tabResults$Source[nchar(tabResults$Source) > 35], perl = TRUE)
     
