@@ -40,7 +40,7 @@ shinyServer(function(input, output) {
     file.copy(input$files$datapath[needCopy],paste0(Dir,'/',input$files$name[needCopy]))
 
     # Read in statcheck:
-    res <- checkdir(Dir)
+    res <- checkdir(Dir, OneTailedTxt=input$oneTail)
     output$message <- renderText({resCap})
     
     unlink(Dir, recursive=TRUE)
