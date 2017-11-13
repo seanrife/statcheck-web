@@ -10,7 +10,7 @@ shinyUI(
       br(),
              
       # Input:
-      fileInput("files", "Upload files (pdf or html):", multiple = TRUE, accept= c('pdf/html')),
+      fileInput("files", "Upload files (pdf, html, or docx):", multiple = TRUE, accept= c('pdf/html/docx')),
       
       checkboxInput("oneTail", "Try to identify and correct for one-tailed tests?", value = FALSE, width = NULL),
 
