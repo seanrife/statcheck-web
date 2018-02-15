@@ -92,7 +92,7 @@ shinyServer(function(input, output) {
   output$downloadData <- downloadHandler(
     filename = function() { 'statcheck.csv' },
     content = function(file) {
-      write.csv(Results(), file)
+      write.csv(Results(), file, row.names = FALSE)
     }
   )
 
