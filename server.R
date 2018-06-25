@@ -1,16 +1,19 @@
-library('shiny')
-library('statcheck')
+library("shiny")
+library("statcheck")
+library("DT")
+library("tidyverse")
 
 options(shiny.sanitize.errors = FALSE)
-options(shiny.maxRequestSize=100*1024^2)
+options(shiny.maxRequestSize = 100 * 1024 ^ 2)
 
 # Create a temporary directory to hold uploaded files
-# Make sure it doesn't already exist (because paranoia)
+# Make sure it doesn"t already exist (because paranoia)
 # NOTE: replace with something more useful on deployment
 createTempDir <- function() {
   repeat {
-    randomDir <- paste(sample(c(0:9, letters),32, replace=TRUE), collapse="")
-    retDir <- paste("/home/shiny/uploads",randomDir,sep="/")
+    randomDir <-
+      paste(sample(c(0:9, letters), 32, replace = TRUE), collapse = "")
+    retDir <- paste("~/statcheck-web/uploads", randomDir, sep = "/")
     if (!file.exists(retDir)) {
       break
     }
@@ -20,84 +23,83 @@ createTempDir <- function() {
 }
 
 shinyServer(function(input, output) {
-  
-  # File table:
-  output$filetable <- renderTable({
-    if (is.null(input$files)) return(NULL)
-    
-    tab <- input$files[,'name',drop=FALSE]
-    tab$name[nchar(tab$name) > 23] <- gsub('(?<=^.{20}).*(?=\\.)','(...)',  tab$name[nchar(tab$name) > 23], perl = TRUE)
-    
-    return(tab)
-  })
-
-  Results <- reactive({ 
-    
+  Results <- reactive({
     Dir <- createTempDir()
     
     # Copy to the directory:
-    needCopy <- !file.exists(paste0(Dir,'/',input$files$name))
-    file.copy(input$files$datapath[needCopy],paste0(Dir,'/',input$files$name[needCopy]))
-
-    # Read in statcheck:
-    res <- checkdir(Dir, OneTailedTxt=input$oneTail)
-    output$message <- renderText({resCap})
+    needCopy <- !file.exists(paste0(Dir, "/", input$files$name))
+    file.copy(input$files$datapath[needCopy],
+              paste0(Dir, "/", input$files$name[needCopy]))
     
-    unlink(Dir, recursive=TRUE)
+    # Read in statcheck:
+    res <- checkdir(Dir, OneTailedTxt = input$oneTail)
+    output$message <- renderText({
+      resCap
+    })
+    
+    unlink(Dir, recursive = TRUE)
     return(res)
     
   })
   
   output$downloadData <- downloadHandler(
-    filename = 'statcheckReport.csv',
+    filename = "statcheckReport.csv",
     content = function(con) {
       if (is.null(input$files)) {
         # User has not uploaded a file yet
         return(NULL)
       }
       
-      write.csv(Results(), con)
-    })
-
-  # Summary table:
-  output$summary <- renderTable({
-    if (is.null(input$files)) return(NULL)
-    
-    tabSummary <- summary(Results())
-    
- 
-    return(tabSummary)
-    
-  })
+      write.csv(Results(), con, row.names = FALSE)
+    }
+  )
   
   # Detailed:
-  output$results <- renderTable({
-    if (is.null(input$files)) return(NULL)
+  output$results <- DT::renderDataTable({
+    req(input$files)
     
-    tabResults <- Results()
+    tabResults <- Results() %>%
+      mutate(Consistency =
+               ifelse(
+                 Error == FALSE,
+                 "Consistent",
+                 ifelse(
+                   DecisionError == TRUE,
+                   "Decision Inconsistency",
+                   "Inconsistency"
+                 )
+               )) %>%
+      select(Source, Raw, Computed, Consistency)
     
     # More consise names:
-    names(tabResults) <- c('Source','Stat','df1','df2','Test Comparison','Reported Value','Reported Comparison','Reported p Value','Computed p Value','Statistical Reference','Error?','Decision error?','One-sided testing?','1-tail in text','APA Factor')
+    names(tabResults) <-
+      c("Source",
+        "Statistical Reference",
+        "Computed p Value",
+        "Consistency")
     
-    tabResults[,9] <- sprintf("%.05f",tabResults[,9])
-    tabResults[,8] <- sprintf("%.05f",tabResults[,8])
+    tabResults[, 3] <- sprintf("%.05f", tabResults[, 3])
     
     tabResults$Source <- as.character(tabResults$Source)
-    tabResults$Source[nchar(tabResults$Source) > 35] <- gsub('(?<=^.{30}).*',' (...)',  tabResults$Source[nchar(tabResults$Source) > 35], perl = TRUE)
+    tabResults$Source[nchar(tabResults$Source) > 35] <-
+      gsub("(?<=^.{30}).*", " (...)",  tabResults$Source[nchar(tabResults$Source) > 35], perl = TRUE)
+    
+    print(head(tabResults))
     
     return(tabResults)
   })
   
   # Download data:
   output$downloadData <- downloadHandler(
-    filename = function() { 'statcheck.csv' },
+    filename = function() {
+      "statcheck.csv"
+    },
     content = function(file) {
       write.csv(Results(), file, row.names = FALSE)
     }
   )
-
+  
   output$window <- renderUI({
-      tableOutput("summary")
-      div(tableOutput("results"), style="font-size:80%; font-family: Helvetica Neue,Helvetica,Arial,sans-serif")
+    div(DT::dataTableOutput("results"))
   })
 })
